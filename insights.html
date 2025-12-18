@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Booking Insights</title>
+  <style>
+    body { font-family: Arial; max-width: 600px; margin: auto; }
+    .box { padding: 10px; border: 1px solid #ccc; margin: 10px 0; }
+  </style>
+</head>
+<body>
+
+<h2>Booking Insights</h2>
+
+<div class="box" id="total"></div>
+<div class="box" id="pending"></div>
+<div class="box" id="approved"></div>
+<div class="box" id="rejected"></div>
+
+<script type="module">
+  import { initializeApp } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-app.js";
+  import { getFirestore, collection, onSnapshot } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore.js";
+
+  const firebaseConfig = {
+    apiKey: "YOUR_API_KEY",
+    authDomain: "YOUR_PROJECT.firebaseapp.com",
+    projectId: "YOUR_PROJECT_ID",
+  };
+
+  const app = initializeApp(firebaseConfig);
+  const db = getFirestore(app);
+
+  onSnapshot(collection(db, "bookingRequests"), (snapshot) => {
+    let total = 0, pending = 0, approved = 0, rejected = 0;
+
+    snapshot.forEach(doc => {
+      total++;
+      const s = doc.data().status;
+      if (s === "Pending") pending++;
+      if (s === "Approved") approved++;
+      if (s === "Rejected") rejected++;
+    });
+
+    totalDiv.innerText = "Total Requests: " + total;
+    pendingDiv.innerText = "Pending: " + pending;
+    approvedDiv.innerText = "Approved: " + approved;
+    rejectedDiv.innerText = "Rejected: " + rejected;
+  });
+
+  const totalDiv = document.getElementById("total");
+  const pendingDiv = document.getElementById("pending");
+  const approvedDiv = document.getElementById("approved");
+  const rejectedDiv = document.getElementById("rejected");
+</script>
+
+</body>
+</html>

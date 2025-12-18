@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Booking Request</title>
+  <style>
+    body { font-family: Arial; max-width: 500px; margin: auto; }
+    input, textarea, button {
+      width: 100%; padding: 8px; margin: 6px 0;
+    }
+  </style>
+</head>
+<body>
+
+<h2>Request a Booking</h2>
+
+<input id="name" placeholder="Full Name" required>
+<input id="email" type="email" placeholder="Email" required>
+<input id="date" type="date" required>
+<input id="time" placeholder="Time (e.g. 10:00 - 12:00)">
+<textarea id="purpose" placeholder="Purpose"></textarea>
+
+<button onclick="submitBooking()">Submit Request</button>
+
+<p id="msg"></p>
+
+<script type="module">
+  import { initializeApp } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-app.js";
+  import { getFirestore, collection, addDoc, serverTimestamp } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore.js";
+
+  const firebaseConfig = {
+    apiKey: "YOUR_API_KEY",
+    authDomain: "YOUR_PROJECT.firebaseapp.com",
+    projectId: "YOUR_PROJECT_ID",
+  };
+
+  const app = initializeApp(firebaseConfig);
+  const db = getFirestore(app);
+
+  async function submitBooking() {
+    if (!name.value || !email.value || !date.value) {
+      msg.innerText = "Please fill all required fields.";
+      return;
+    }
+
+    await addDoc(collection(db, "bookingRequests"), {
+      name: name.value,
+      email: email.value,
+      date: date.value,
+      time: time.value,
+      purpose: purpose.value,
+      status: "Pending",
+      staffNotes: "",
+      createdAt: serverTimestamp()
+    });
+
+    msg.innerText = "Booking request submitted!";
+  }
+
+  window.submitBooking = submitBooking;
+</script>
+
+</body>
+</html>

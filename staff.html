@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Staff Dashboard</title>
+  <style>
+    body { font-family: Arial; max-width: 800px; margin: auto; }
+    .card {
+      border: 1px solid #ccc; padding: 10px; margin: 10px 0;
+    }
+    button { margin-right: 5px; }
+  </style>
+</head>
+<body>
+
+<h2>Staff Booking Dashboard</h2>
+<p><b>Login:</b> staff@nci.ie | <b>Password:</b> cloud123</p>
+
+<div id="bookings"></div>
+
+<script type="module">
+  import { initializeApp } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-app.js";
+  import { getFirestore, collection, onSnapshot, doc, updateDoc } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore.js";
+
+  const firebaseConfig = {
+    apiKey: "YOUR_API_KEY",
+    authDomain: "YOUR_PROJECT.firebaseapp.com",
+    projectId: "YOUR_PROJECT_ID",
+  };
+
+  const app = initializeApp(firebaseConfig);
+  const db = getFirestore(app);
+
+  const bookingsDiv = document.getElementById("bookings");
+
+  onSnapshot(collection(db, "bookingRequests"), (snapshot) => {
+    bookingsDiv.innerHTML = "";
+    snapshot.forEach(docSnap => {
+      const b = docSnap.data();
+      bookingsDiv.innerHTML += `
+        <div class="card">
+          <b>${b.name}</b> (${b.email})<br>
+          ${b.date} | ${b.time}<br>
+          Purpose: ${b.purpose}<br>
+          Status: <b>${b.status}</b><br>
+          <input placeholder="Staff notes"
+            onchange="updateNotes('${docSnap.id}', this.value)">
+          <br><br>
+          <button onclick="updateStatus('${docSnap.id}', 'Approved')">Approve</button>
+          <button onclick="updateStatus('${docSnap.id}', 'Rejected')">Reject</button>
+        </div>
+      `;
+    });
+  });
+
+  async function updateStatus(id, status) {
+    await updateDoc(doc(db, "bookingRequests", id), { status });
+  }
+
+  async function updateNotes(id, notes) {
+    await updateDoc(doc(db, "bookingRequests", id), { staffNotes: notes });
+  }
+
+  window.updateStatus = updateStatus;
+  window.updateNotes = updateNotes;
+</script>
+
+</body>
+</html>
